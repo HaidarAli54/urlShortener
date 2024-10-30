@@ -14,7 +14,8 @@ import { PrismaService } from '../utils/prisma.service';
             signOptions: { expiresIn: '60s' }
         })
     ],
+    controllers: [AuthController],
     providers: [AuthService, PrismaService, JwtStrategy],
-    controllers: [AuthController]
+
 })
 export class AuthModule {}
