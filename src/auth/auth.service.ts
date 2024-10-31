@@ -47,11 +47,33 @@ export class AuthService {
             throw new UnauthorizedException('Invalid password');
         }
 
-        const token = this.jwtService.sign({ userId: user.id, email: user.email });
+        const payload = { id: user.id, username: user.username, email: user.email };
+        const token = this.jwtService.sign( payload, {
+            secret: process.env.JWT_SECRET,
+        
+            expiresIn: '1h', // Contoh masa berlaku
+        
+        });
 
         return {
             accessToken: token,
             user: { id: user.id, username: user.username, email: user.email },
+        }
+    }
+
+    async validateToken(token: string): Promise<any> {
+
+        try {
+            const decoded = this.jwtService.verify(token, {
+                secret: process.env.JWT_SECRET_KEY, // Ganti dengan kunci rahasia Anda
+            });
+            return decoded; // Mengembalikan data pengguna yang terdekode
+        } catch (error) {
+            if (error.name === 'TokenExpiredError') {
+                throw new UnauthorizedException('Token expired');
+            } 
+            
+            throw new UnauthorizedException('Invalid token');
         }
     }
 }
