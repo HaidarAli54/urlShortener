@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/utils/prisma.service';
 import { validateCustomUrl } from 'src/utils/url.validation';
@@ -64,4 +64,5 @@ export class UrlService {
             where: { shortUrl },
         });
     }
+
 }

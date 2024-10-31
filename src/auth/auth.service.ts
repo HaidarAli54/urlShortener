@@ -91,12 +91,8 @@ export class AuthService {
             where: { id: userId },
             data,
         });
-
-
-        const { password, ...result } = updatedUser ; // Menghapus password dari hasil
-
+        const { password, ...result } = updatedUser ; 
         return result;
-
     }
 
 

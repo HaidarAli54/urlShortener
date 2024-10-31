@@ -21,6 +21,9 @@ model User {
   password  String
   urls      Url[]
 
+  updatedAt DateTime @updatedAt 
+  deletedAt DateTime?
+
 }
 
 
