@@ -1,19 +1,28 @@
 import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from 'src/utils/prisma.service';
 import { JwtService } from '@nestjs/jwt';
-import { v4 as uuidv4 } from 'uuid';
+import { PrismaService } from 'src/utils/prisma.service';
+import { validateCustomUrl } from 'src/utils/url.validation';
+import { generateRandomString } from 'src/utils/string.utils';
+
+
 @Injectable()
 export class UrlService {
-    constructor(private prisma: PrismaService, private jwtService: JwtService) {}
+    private readonly baseUrl: string;
+    constructor(
+        private readonly prisma: PrismaService, private readonly jwtService: JwtService
+    ) { this.baseUrl = process.env.BASE_URL}
 
     async createShortUrl(originalUrl: string, customUrl?: string, token?: string) {
+
         if (!token) {
             throw new UnauthorizedException('Token is required');
         }
 
-        const expiresAt = new Date(Date.now() + 5 * 365 * 24 * 60 * 60 * 1000); //5 years
+        const expiresAt = new Date(Date.now() + Number(process.env.EXPIRED_DATE) * 24 * 60 * 60 * 1000); 
 
-        let shortUrl = customUrl ? customUrl : uuidv4().slice(0, 10);
+        validateCustomUrl(customUrl);
+
+        let shortUrl = customUrl ? customUrl : generateRandomString(6);
 
         let userId;
         try {
@@ -30,8 +39,8 @@ export class UrlService {
         if (existingUrl) {
             throw new ConflictException('Short URL already exists');
         }
-      // Create and return the new URL record
-        return this.prisma.url.create({
+        // Create and return the new URL record
+        const newUrl = await this.prisma.url.create({
             data: {
                 originalUrl,
                 shortUrl,
@@ -39,6 +48,20 @@ export class UrlService {
                 expiresAt,
                 userId,
             },
+        });
+
+        const fullShortUrl = `${this.baseUrl}/${newUrl.shortUrl}`;
+
+        return {
+            shortUrl: fullShortUrl,
+            expiresAt,
+        };
+    };
+
+
+    async findUrlByShortUrl(shortUrl: string) {
+        return this.prisma.url.findUnique({
+            where: { shortUrl },
         });
     }
 }

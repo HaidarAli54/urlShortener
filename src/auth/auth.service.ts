@@ -51,7 +51,7 @@ export class AuthService {
         const token = this.jwtService.sign( payload, {
             secret: process.env.JWT_SECRET,
         
-            expiresIn: '1h', // Contoh masa berlaku
+            expiresIn: '1h',
         
         });
 
@@ -75,5 +75,40 @@ export class AuthService {
             
             throw new UnauthorizedException('Invalid token');
         }
+    }
+    async updateUser (id: string, data: { username?: string; email?: string; password?: string }) {
+        const userId = parseInt(id, 10)
+        const user = await this.prisma.user.findUnique({ where: { id:userId } });
+
+        if (!user) {
+            throw new NotFoundException('User  not found');
+        }
+
+        if (data.password) {
+            data.password = await bcrypt.hash(data.password, 10);
+        }
+        const updatedUser  = await this.prisma.user.update({
+            where: { id: userId },
+            data,
+        });
+
+
+        const { password, ...result } = updatedUser ; // Menghapus password dari hasil
+
+        return result;
+
+    }
+
+
+    async deleteUser (id: string) {
+        const userId = parseInt(id, 10)
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+
+            throw new NotFoundException('User  not found');
+        }
+
+        await this.prisma.user.delete({ where: { id : userId } });
+        return { message: 'User  deleted successfully' };
     }
 }
