@@ -1,6 +1,6 @@
 # URL-SHORTENER
 
-- **URL Shortener**: A URL shortener is a service that takes a long URL and  converts it into a shorter, more manageable URL.
+A URL Shortener is a service that takes a long URL and converts it into a shorter, more manageable URL. This project implements a backend service that allows users to shorten URLs, manage their accounts, and access shortened links.
 
 # How to Install and Run the URL Shortener Project
 
