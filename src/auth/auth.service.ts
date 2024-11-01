@@ -1,5 +1,5 @@
-import { Injectable, UnauthorizedException, NotFoundException, ConflictException } from '@nestjs/common';
-import { PrismaService } from 'src/utils/prisma.service';
+import { Injectable, UnauthorizedException, NotFoundException, ConflictException, Post } from '@nestjs/common';
+import { PrismaService } from '../utils/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
@@ -10,7 +10,7 @@ export class AuthService {
 
     async register(data : { username: string, email: string, password: string }) {
 
-        const userExists = await this.prisma.user.findUnique({ where: { email: data.email }});
+        const userExists = await this.prisma.user.findUnique({ where: { email: data.email, }});
         if (userExists) {
             throw new ConflictException('Email already exists');
         }
@@ -48,9 +48,9 @@ export class AuthService {
         }
 
         const payload = { id: user.id, username: user.username, email: user.email };
+
         const token = this.jwtService.sign( payload, {
             secret: process.env.JWT_SECRET,
-        
             expiresIn: '1h',
         
         });
@@ -65,9 +65,9 @@ export class AuthService {
 
         try {
             const decoded = this.jwtService.verify(token, {
-                secret: process.env.JWT_SECRET_KEY, // Ganti dengan kunci rahasia Anda
+                secret: process.env.JWT_SECRET, 
             });
-            return decoded; // Mengembalikan data pengguna yang terdekode
+            return decoded; 
         } catch (error) {
             if (error.name === 'TokenExpiredError') {
                 throw new UnauthorizedException('Token expired');
@@ -76,6 +76,15 @@ export class AuthService {
             throw new UnauthorizedException('Invalid token');
         }
     }
+
+    async findUserByEmail(email: string) {
+
+        const user = await this.prisma.user.findUnique({ where: { email } });
+
+        return user; // Mengembalikan pengguna atau null jika tidak ditemukan
+
+    }
+
     async updateUser (id: string, data: { username?: string; email?: string; password?: string }) {
         const userId = parseInt(id, 10)
         const user = await this.prisma.user.findUnique({ where: { id:userId } });
@@ -100,9 +109,10 @@ export class AuthService {
         const userId = parseInt(id, 10)
         const user = await this.prisma.user.findUnique({ where: { id: userId } });
         if (!user) {
-
             throw new NotFoundException('User  not found');
         }
+
+        await this.prisma.url.deleteMany({ where: { userId } });
 
         await this.prisma.user.delete({ where: { id : userId } });
         return { message: 'User  deleted successfully' };

@@ -6,8 +6,8 @@ import { Request } from 'express';
 export class JwtAuthGuard implements CanActivate {
     constructor(private jwtService: JwtService) {}
 
-    canActivate(context: ExecutionContext): boolean {
-        
+    async canActivate(context: ExecutionContext): Promise<boolean> {
+
         const request = context.switchToHttp().getRequest();
         const token = this.extractTokenFromHeader(request); 
 
@@ -15,15 +15,25 @@ export class JwtAuthGuard implements CanActivate {
             throw new UnauthorizedException('Token not provided');
         }
 
-        const user = this.validateToken(token);
-        request.user = user;
-        return true;
+        try {
+
+            const payload = await this.jwtService.verifyAsync(token);
+            request.user = payload; 
+            return true;
+
+        } catch (err) {
+
+            console.error('Token verification error:', err.message);
+            throw new UnauthorizedException('Invalid token');
+
+        }
+
     }
     private extractTokenFromHeader(request: Request): string | null {
 
         const authorization = request.headers['authorization'];
 
-        if (authorization && authorization.startsWith('Bearer ')) {
+        if (authorization && authorization.startsWith('Bearer')) {
 
             return authorization.split(' ')[1]; 
 
@@ -31,16 +41,5 @@ export class JwtAuthGuard implements CanActivate {
 
         return null;
 
-    }
-    private validateToken(token: string): any {
-        try {
-            return this.jwtService.verify(token, {
-                secret: process.env.JWT_SECRET, // Ganti dengan kunci rahasia Anda
-            });
-
-        } catch (err) {
-            console.error('Token verification error:', err.message);
-            throw new UnauthorizedException('Invalid token');
-        }
     }
 }

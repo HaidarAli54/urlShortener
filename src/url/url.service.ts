@@ -1,8 +1,8 @@
 import { Injectable, ConflictException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from 'src/utils/prisma.service';
-import { validateCustomUrl } from 'src/utils/url.validation';
-import { generateRandomString } from 'src/utils/string.utils';
+import { PrismaService } from '../utils/prisma.service';
+import { validateCustomUrl } from '../utils/url.validation';
+import { generateRandomString } from '../utils/string.utils';
 
 
 @Injectable()
@@ -60,9 +60,70 @@ export class UrlService {
 
 
     async findUrlByShortUrl(shortUrl: string) {
-        return this.prisma.url.findUnique({
+        try {
+
+            const urlRecord = await this.prisma.url.findUnique({
+                where: { shortUrl: shortUrl },
+    
+            });
+    
+            // Log hasil pencarian
+            console.log('URL Record found:', urlRecord);
+    
+            // Jika tidak ada record ditemukan, kembalikan null
+            return urlRecord;
+    
+        } catch (error) {
+    
+            console.error('Error finding URL by shortUrl:', error);
+            throw new Error('Could not find URL'); // Anda bisa menyesuaikan pesan kesalahan ini
+    
+        }
+
+    }
+
+    async deleteShortUrl(shortUrl: string, token: string) {
+
+        if (!token) {
+            throw new UnauthorizedException('Token is required');
+        }
+    
+    
+        let userId;
+        try {
+            const decodedToken = this.jwtService.verify(token);
+            userId = decodedToken.id;
+        } catch (error) {
+            throw new UnauthorizedException('Invalid token');
+        }
+    
+    
+        // Cari URL berdasarkan shortUrl
+    
+        const urlRecord = await this.prisma.url.findUnique({
             where: { shortUrl },
         });
+    
+    
+        // Jika tidak ada record ditemukan, lempar NotFoundException
+    
+        if (!urlRecord) {
+            throw new NotFoundException('Short URL not found');
+        }
+    
+        // Pastikan pengguna adalah pemilik URL sebelum menghapus
+        if (urlRecord.userId !== userId) {
+            throw new UnauthorizedException('You do not have permission to delete this URL');
+        }
+    
+    
+        // Hapus URL
+        await this.prisma.url.delete({
+            where: { shortUrl },
+        });
+    
+    
+        return { message: 'Short URL deleted successfully' };
     }
 
 }

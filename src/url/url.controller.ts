@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Req, HttpStatus, HttpException, Get, Param, Res } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, HttpStatus, HttpException, Get, Param, Res, NotFoundException, Delete } from '@nestjs/common';
 import { UrlService } from './url.service';
 import { JwtAuthGuard } from '../utils/jwt.config';
 import { CreateShortUrlDto } from './dto/createShortUrl.dto';
@@ -33,17 +33,43 @@ export class UrlController {
 
     @Get(':shortUrl')
     async redirect(@Param('shortUrl') shortUrl: string, @Res() res: Response) {
+        console.log('Attempting to redirect for short URL:', shortUrl);
+
+        const urlRecord = await this.urlService.findUrlByShortUrl(shortUrl);
+        if (!urlRecord) {
+            console.error('Short URL not found in database');
+            return res.status(HttpStatus.NOT_FOUND).send({ message: 'Short URL not found' });
+        }
+        console.log('Redirecting to original URL:', urlRecord.originalUrl);
+
+        return res.redirect(urlRecord.originalUrl);
+    }
+
+    @UseGuards(JwtAuthGuard)
+
+    @Delete(':shortUrl')
+
+    async deleteShortUrl(@Param('shortUrl') shortUrl: string, @Req() req: any) {
+
+        const authHeader = req.headers.authorization;
+        const token = authHeader && authHeader.split(' ')[1];
+
+        if (!token) {
+
+            throw new HttpException('Token not provided', HttpStatus.UNAUTHORIZED);
+
+        }
+
+
         try {
-            // Cari URL asli berdasarkan shortUrl
-            const urlRecord = await this.urlService.findUrlByShortUrl(shortUrl);
-            if (!urlRecord) {
-                throw new HttpException('Short URL not found', HttpStatus.NOT_FOUND);
-            }
-            // Redirect ke originalUrl
-            return res.redirect(urlRecord.originalUrl);
+            // Delete short URL
+            const response = await this.urlService.deleteShortUrl(shortUrl, token);
+            return response;
+
         } catch (error) {
             console.error(error);
-            throw new HttpException('Failed to redirect', HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException(`Failed to delete short URL: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
     }
 }
