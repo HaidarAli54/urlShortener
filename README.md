@@ -39,4 +39,4 @@ If you encounter issues while running the application, check the console for err
 Make sure your database is running and accessible according to the connection string you provided.
 
 
-# The API documentation can be found [here], 
+# The API documentation can be found [here], url-shortener.postman_collection.json

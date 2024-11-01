@@ -1,0 +1,245 @@
+{
+	"info": {
+		"_postman_id": "0ccb0e57-2552-4e98-8261-b5a48fdf1f99",
+		"name": "url-shortener",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "34693256"
+	},
+	"item": [
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"Admin 2\",\r\n    \"email\": \"admin2@mail.com\",\r\n    \"password\": \"admin 2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/auth/register",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"haidarali@mail.com\",\r\n    \"password\": \"ali5464\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/auth/login",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJBZG1pbiAyIiwiZW1haWwiOiJhZG1pbjJAbWFpbC5jb20iLCJpYXQiOjE3MzAzODk1NDIsImV4cCI6MTczMDM5MzE0Mn0.IjyVFlkEP1XjYRfbSTo6Agx8DPFlSxD2tY7MJOmCKBE",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 4,\r\n    \"username\": \"aliahmad\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/auth/update/:4",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"update",
+								":4"
+							],
+							"variable": [
+								{
+									"key": "4",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/auth/delete/:1",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"delete",
+								":1"
+							],
+							"variable": [
+								{
+									"key": "1",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Url",
+			"item": [
+				{
+					"name": "shortUrl",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJBbGkgMSIsImVtYWlsIjoiYWxpMUBtYWlsLmNvbSIsImlhdCI6MTczMDM4MTg0NSwiZXhwIjoxNzMwMzg1NDQ1fQ.aGaear93uGRLQ1fxLDijVWhVnUgyq05_VTgPZdrT5SI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"originalUrl\" : \"https://bilkisismail07.medium.com/cara-upload-photo-image-dengan-cloudinary-pada-node-js-dan-express-part-1-c967aa14074c\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/url/shorten",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"url",
+								"shorten"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "redirect to original url",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"admin2@mail.com\",\r\n    \"password\": \"admin 2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/url/",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"url",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteShortUrl",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsInVzZXJuYW1lIjoiYWRtaW45IiwiZW1haWwiOiJhZG1pbjlAbWFpbC5jb20iLCJpYXQiOjE3MzA0NDEwMjMsImV4cCI6MTczMDQ0NDYyM30.oH0gP7ZcX1zbECdTMRJjpe0eDEsX8BWwPPpU52unMpQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/url/",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"url",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
