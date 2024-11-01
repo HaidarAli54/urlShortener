@@ -80,8 +80,7 @@ export class AuthService {
     async findUserByEmail(email: string) {
 
         const user = await this.prisma.user.findUnique({ where: { email } });
-
-        return user; // Mengembalikan pengguna atau null jika tidak ditemukan
+        return user; 
 
     }
 

@@ -11,8 +11,8 @@ import { PrismaService } from '../utils/prisma.service';
 @Module({
   imports: [
     JwtModule.register({
-      secret: process.env.JWT_SECRET, // Gantilah dengan rahasia Anda
-      signOptions: { expiresIn: '1h' }, // Atur opsi tanda tangan sesuai kebutuhan Anda
+      secret: process.env.JWT_SECRET, 
+      signOptions: { expiresIn: '1h' }, 
       }),
     ],
   providers: [UrlService, JwtAuthGuard, AuthService,  PrismaService],

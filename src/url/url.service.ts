@@ -34,12 +34,10 @@ export class UrlService {
             throw new UnauthorizedException('Invalid token');
         }
 
-        // Check if the short URL already exists
         const existingUrl = await this.prisma.url.findUnique({ where: { shortUrl } });
         if (existingUrl) {
             throw new ConflictException('Short URL already exists');
         }
-        // Create and return the new URL record
         const newUrl = await this.prisma.url.create({
             data: {
                 originalUrl,
@@ -67,17 +65,14 @@ export class UrlService {
     
             });
     
-            // Log hasil pencarian
             console.log('URL Record found:', urlRecord);
     
-            // Jika tidak ada record ditemukan, kembalikan null
             return urlRecord;
     
         } catch (error) {
     
             console.error('Error finding URL by shortUrl:', error);
-            throw new Error('Could not find URL'); // Anda bisa menyesuaikan pesan kesalahan ini
-    
+            throw new Error('Could not find URL');
         }
 
     }
@@ -97,27 +92,21 @@ export class UrlService {
             throw new UnauthorizedException('Invalid token');
         }
     
-    
-        // Cari URL berdasarkan shortUrl
-    
+        
         const urlRecord = await this.prisma.url.findUnique({
             where: { shortUrl },
         });
     
-    
-        // Jika tidak ada record ditemukan, lempar NotFoundException
-    
+        
         if (!urlRecord) {
             throw new NotFoundException('Short URL not found');
         }
     
-        // Pastikan pengguna adalah pemilik URL sebelum menghapus
         if (urlRecord.userId !== userId) {
             throw new UnauthorizedException('You do not have permission to delete this URL');
         }
     
     
-        // Hapus URL
         await this.prisma.url.delete({
             where: { shortUrl },
         });

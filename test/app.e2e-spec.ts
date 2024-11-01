@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module'; 
-import { AuthService } from '../src/auth/auth.service'; // Ganti dengan path yang sesuai
-import { UrlService } from '../src/url/url.service'; // Ganti dengan path yang sesuai
+import { AuthService } from '../src/auth/auth.service'; 
+import { UrlService } from '../src/url/url.service'; 
 
 describe('URL Shortener E2E Tests', () => {
   let app: INestApplication;
@@ -18,7 +18,7 @@ describe('URL Shortener E2E Tests', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    authService = moduleFixture.get<AuthService>(AuthService); // Mengambil instance authService yang dibuat di AppModule = moduleFixture.get<AuthService>(AuthService);
+    authService = moduleFixture.get<AuthService>(AuthService); 
     urlService = moduleFixture.get<UrlService>(UrlService);
     await app.init();
   });
@@ -28,18 +28,17 @@ describe('URL Shortener E2E Tests', () => {
   });
 
   beforeEach(async () => {
-    // Reset nilai untuk setiap pengujian
+
     accessToken = '';
     shortUrl = '';
   });
 
   afterEach(async () => {
-    // Pembersihan setelah setiap pengujian
     if (shortUrl && accessToken) {
-      await urlService.deleteShortUrl(shortUrl, accessToken); // Pastikan untuk memberikan token
+      await urlService.deleteShortUrl(shortUrl, accessToken); 
     }
 
-    const user = await authService.findUserByEmail('admin9@mail.com');  
+    const user = await authService.findUserByEmail('aliaja@mail.com');  
     if (user) {
       await authService.deleteUser (user.id.toString())
     };
@@ -50,15 +49,15 @@ describe('URL Shortener E2E Tests', () => {
     const response = await request(app.getHttpServer())
       .post('/auth/register')
       .send({
-        username: 'admin11',
-        email: 'admin11@mail.com',
-        password: 'admin11',
+        username: 'aliaja',
+        email: 'aliaja@mail.com',
+        password: 'aliaja',
       })
       .expect(201);
 
     expect(response.body).toHaveProperty('id');
-    expect(response.body.username).toBe('admin11');
-    expect(response.body.email).toBe('admin11@mail.com');
+    expect(response.body.username).toBe('aliaja');
+    expect(response.body.email).toBe('aliaja@mail.com');
   });
 
   it('should log in a user', async () => {
@@ -75,24 +74,48 @@ describe('URL Shortener E2E Tests', () => {
   });
 
   it('should shorten a URL', async () => {
-    const response = await request(app.getHttpServer())
-      .post('/url/shorten')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .send({
-        originalUrl: 'www.example.com',
-      })
-      .expect(201);
+    const loginResponse = await request(app.getHttpServer())
 
-    expect(response.body).toHaveProperty('shortUrl');
-    shortUrl = response.body.shortUrl; 
-    console.log('Shortened URL:', shortUrl);
+    .post('/auth/login')
+    .send({
+      email: 'admin11@mail.com',
+      password: 'admin11',
+
+    })
+
+    .expect(201); 
+
+
+  expect(loginResponse.body).toHaveProperty('accessToken');
+
+  accessToken = loginResponse.body.accessToken; 
+
+
+  expect(accessToken).toBeDefined(); 
+
+
+  const response = await request(app.getHttpServer())
+
+    .post('/url/shorten')
+    .set('Authorization', `Bearer ${accessToken}`)
+    .send({
+      originalUrl: 'http://www.example.com',
+    })
+    .expect(201); 
+
+  expect(response.body).toHaveProperty('shortUrl');
   });
 
   it('should access the shortened URL', async () => {
+    if (!shortUrl) {
+      console.error('Short URL is not set');
+      return;
+
+    }
     const response = await request(app.getHttpServer())
       .get(`/url/${shortUrl}`)
       .expect(302); 
       
-    expect(response.header.location).toBe('www.example.com'); 
+    expect(response.header.location).toBe('http://www.example.com'); 
   });
 });
